@@ -1,0 +1,101 @@
+
+:global {
+  .android-slide-left-enter-done,
+  .android-slide-right-enter-done,
+  .android-slide-right-enter,
+  .android-slide-right-exit,
+  .android-slide-left-enter,
+  .android-slide-left-exit {
+    will-change: transform;
+  }
+
+  .android-slide-right-enter,
+  .android-slide-right-exit,
+  .android-slide-right-exit-done,
+  .android-slide-left-enter,
+  .android-slide-left-exit,
+  .android-slide-left-exit-done {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    box-shadow: 0 3px 6px rgb(0 0 0 / 0.16), 0 3px 6px rgb(0 0 0 / 0.23);
+  }
+}
+
+// new page in a android-slide from right to left transition (eg. "forward navigation" animation)
+:global(.android-slide-left-enter-active) {
+  z-index: 3000;
+  animation: android-slide-in-from-right 0.3s;
+  animation-fill-mode: forwards;
+}
+
+// old page (removing) in a android-slide from right to left transition
+:global(.android-slide-left-exit-active),
+:global(.android-slide-left-exit-done) { // sliding out of screen continues until the element is really unmounted (to prevent the element from flickering back)
+  animation: android-slide-out-to-left 0.2s;
+  animation-fill-mode: forwards;
+}
+
+// new page in a android-slide from left to right transition (eg. "backward navigation" animation)
+:global(.android-slide-right-enter-active) {
+  animation: android-slide-in-from-left 0.3s;
+  animation-fill-mode: forwards;
+}
+
+// old page (removing) in a android-slide from left to right transition
+:global(.android-slide-right-exit-active),
+:global(.android-slide-left-exit-done) { // sliding out of screen continues until the element is really unmounted (to prevent the element from flickering back)
+  z-index: 3000;
+  animation: android-slide-out-to-right 0.2s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes android-slide-in-from-right {
+  from {
+    //opacity: 0;
+    transform: translate3d(100%, 0, 0);
+  }
+
+  to {
+    //opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes android-slide-out-to-right {
+  from {
+    //opacity: 1;
+    transform: none;
+  }
+
+  to {
+    //opacity: 0;
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+@keyframes android-slide-in-from-left {
+  from {
+    //opacity: 0;
+    //transform: scale(0.9);
+    transform: translate3d(-20%, 0, 0);
+  }
+
+  to {
+    //opacity: 1;
+    //transform: none;
+  }
+}
+
+@keyframes android-slide-out-to-left {
+  from {
+    //opacity: 1;
+    //transform: none;
+  }
+
+  to {
+    //opacity: 0;
+    //transform: scale(0.9);
+    transform: translate3d(-20%, 0, 0);
+  }
+}
