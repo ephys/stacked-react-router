@@ -1,5 +1,5 @@
 import type { Location } from 'history';
-import { Component, Fragment, ReactNode } from 'react';
+import { Children, Component, Fragment, ReactNode } from 'react';
 import { matchPath, Switch, withRouter, RouteComponentProps } from 'react-router-dom';
 import CSSTransition from 'react-transition-group/CSSTransition';
 import TransitionGroup from 'react-transition-group/TransitionGroup';
@@ -86,7 +86,9 @@ class StackRouterImpl extends Component<Props, State> {
       };
     }
 
-    if (!oldPropsLocation || !areLocationsInSameGroup(newLocation, oldPropsLocation, newProps.children)) {
+    const newChildren = Children.toArray(newProps.children);
+
+    if (!oldPropsLocation || !areLocationsInSameGroup(newLocation, oldPropsLocation, newChildren)) {
 
       return {
         renderPreviousData: oldPropsLocation != null,
@@ -114,8 +116,8 @@ class StackRouterImpl extends Component<Props, State> {
     });
   }
 
-  renderChildren(location, shouldAnimate: boolean, key: string) {
-    const activeRoute = getActiveRoute(location, this.props.children);
+  renderChildren(children: ReactNode[], location, shouldAnimate: boolean, key: string) {
+    const activeRoute = getActiveRoute(location, children);
 
     if (activeRoute == null) {
       console.error('No route matches the current location. Consider adding a catch-all route');
@@ -146,21 +148,23 @@ class StackRouterImpl extends Component<Props, State> {
     );
   }
 
-  isInRouteGroup(location: Location) {
-    return getLocationRouteGroup(location, this.props.children) != null;
+  isInRouteGroup(location: Location, children: ReactNode[]) {
+    return getLocationRouteGroup(location, children) != null;
   }
 
   render() {
+    const currentChildren = Children.toArray(this.props.children);
+
     const location = this.state.renderPreviousData ? this.state.previousLocation : this.props.location;
     const locationKey = this.state.renderPreviousData ? this.state.previousKey : this.state.keyOverride;
     const shouldAnimate = this.state.from != null && !(
-      this.isInRouteGroup(this.state.from)
-      && this.isInRouteGroup(this.props.location)
+      this.isInRouteGroup(this.state.from, currentChildren)
+      && this.isInRouteGroup(this.props.location, currentChildren)
     );
 
     return (
       <TransitionGroup className={styles.transitionGroupWrapper}>
-        {this.renderChildren(location, shouldAnimate, locationKey)}
+        {this.renderChildren(currentChildren, location, shouldAnimate, locationKey)}
       </TransitionGroup>
     );
   }
@@ -169,7 +173,7 @@ class StackRouterImpl extends Component<Props, State> {
 function getActiveRoute(location: Location, children: ReactNode[]): ReactNode | null {
   for (const child of children) {
     if (child.type === Fragment) {
-      const match = getActiveRoute(location, child.props.children);
+      const match = getActiveRoute(location, Children.toArray(child.props.children));
 
       if (match) {
         return match;
